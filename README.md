@@ -9,4 +9,4 @@ You can create a new user using the 'Create a New User' form. The user will be s
 You can query the database with user_id using `/api/user/:_id/logs`. It will send a json with all the exercises in the logs field. You can limit the number of exercises you want to query. You can also set from and to date to get exercises doen by a user in a specified range.
 
 
-The project is hosted on replit:
+The project is hosted on replit: [https://Exercise-tracker-Project.sathishkannan16.repl.co](https://Exercise-tracker-Project.sathishkannan16.repl.co)
