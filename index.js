@@ -1,8 +1,10 @@
 const express = require('express')
 const app = express()
-const cors = require('cors')
+const cors = require('cors');
+let UserModel = require('./user');
 require('dotenv').config()
 require('./database')
+
 
 app.use(cors())
 app.use(express.static('public'))
