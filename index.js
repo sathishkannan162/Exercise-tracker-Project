@@ -61,7 +61,7 @@ app.post("/api/users/:_id/exercises", function (req, res) {
     },
     {
       $push: {
-        logs: {
+        log: {
           description: req.body.description,
           duration: req.body.duration,
           date: req.body.date || Date.now(),
@@ -97,11 +97,11 @@ app.get("/api/users/:_id/logs", function (req, res) {
     req.query.limit
   );
   UserModel.aggregate([
-    { $unwind: "$logs" },
+    { $unwind: "$log" },
     {
       $match: {
         _id: mongoose.Types.ObjectId(req.params._id),
-        "logs.date": {
+        "log.date": {
           $gt: new Date(req.query.from || new Date("1970")),
           $lt: new Date(req.query.to || Date.now()),
         },
@@ -113,20 +113,20 @@ app.get("/api/users/:_id/logs", function (req, res) {
         _id: "$_id",
         username: { $first: "$username" },
         count: { $sum: 1 },
-        logs: { $addToSet: "$logs" },
+        log: { $addToSet: "$log" },
       },
     },
     {
       $project: {
-        "logs._id": 0
+        "log._id": 0
       }
     }
   ])
     .then((docs) => {
       console.log(docs);
       let newDocs = JSON.parse(JSON.stringify(docs));
-      for (let i = 0; i < docs[0].logs.length; i++) {
-        newDocs[0].logs[i].date = docs[0].logs[i].date.toDateString();
+      for (let i = 0; i < docs[0].log.length; i++) {
+        newDocs[0].log[i].date = docs[0].log[i].date.toDateString();
       }
 
       res.json(newDocs[0]);

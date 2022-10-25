@@ -5,7 +5,7 @@ let userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    logs: [{
+    log: [{
         description: {
             type: String,
             required: true
