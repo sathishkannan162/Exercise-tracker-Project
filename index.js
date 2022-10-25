@@ -88,28 +88,53 @@ app.post("/api/users/:_id/exercises", function (req, res) {
 
 app.get("/api/users/:_id/logs", function (req, res) {
   console.log(req.query);
-  console.log('from:', req.query.from, 'to:', req.query.to, 'limit:', req.query.limit);
-  UserModel.aggregate([{ $unwind: "$logs"},
-   { $match:{ _id: mongoose.Types.ObjectId(req.params._id), "logs.date":{ $gt: new Date(req.query.from || new Date('1970')),
-    $lt: new Date(req.query.to || Date.now())}}}, {$limit: Number(req.query.limit) || 1000},
-    { $group: {_id: '$_id', username: { $first: '$username'},count: {$sum: 1}, logs: {$addToSet: '$logs'}}}])
-    .then(docs=>{
-
-
-     console.log(docs);
+  console.log(
+    "from:",
+    req.query.from,
+    "to:",
+    req.query.to,
+    "limit:",
+    req.query.limit
+  );
+  UserModel.aggregate([
+    { $unwind: "$logs" },
+    {
+      $match: {
+        _id: mongoose.Types.ObjectId(req.params._id),
+        "logs.date": {
+          $gt: new Date(req.query.from || new Date("1970")),
+          $lt: new Date(req.query.to || Date.now()),
+        },
+      },
+    },
+    { $limit: Number(req.query.limit) || 1000 },
+    {
+      $group: {
+        _id: "$_id",
+        username: { $first: "$username" },
+        count: { $sum: 1 },
+        logs: { $addToSet: "$logs" },
+      },
+    },
+    {
+      $project: {
+        "logs._id": 0
+      }
+    }
+  ])
+    .then((docs) => {
+      console.log(docs);
       let newDocs = JSON.parse(JSON.stringify(docs));
       for (let i = 0; i < docs[0].logs.length; i++) {
         newDocs[0].logs[i].date = docs[0].logs[i].date.toDateString();
-        delete newDocs[0].logs[i]._id
       }
-      
-      res.json(newDocs[0])
+
+      res.json(newDocs[0]);
     })
-    .catch(err=>{
-    console.log(err)
-      res.json(err)
+    .catch((err) => {
+      console.log(err);
+      res.json(err);
     });
-    
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
