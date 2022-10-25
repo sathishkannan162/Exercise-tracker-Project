@@ -33,87 +33,80 @@ app.post("/api/users", function (req, res) {
     });
 });
 
-app.get('/api/users',function(req,res){
-  UserModel.find({},{
-    username: 1,
-    _id: 1
-  })
-  .then(docs=>{
-  console.log(docs)
-    res.json(docs);
-  })
-  .catch(err=>{
-  console.log(err)
-    res.send(err);
-  });
-  
+app.get("/api/users", function (req, res) {
+  UserModel.find(
+    {},
+    {
+      username: 1,
+      _id: 1,
+    }
+  )
+    .then((docs) => {
+      console.log(docs);
+      res.json(docs);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.send(err);
+    });
 });
-
 
 app.post("/api/users/:_id/exercises", function (req, res) {
   console.log(req.body);
 
-  // findOneAndUpdate 
+  // findOneAndUpdate
 
-
-  UserModel.findOneAndUpdate({
-    _id: req.params._id
-  },
-  {
-    $push: {
-      logs: {
+  UserModel.findOneAndUpdate(
+    {
+      _id: req.params._id,
+    },
+    {
+      $push: {
+        logs: {
+          description: req.body.description,
+          duration: req.body.duration,
+          date: req.body.date || Date.now(),
+        },
+      },
+    },
+    { new: true }
+  )
+    .then((docs) => {
+      console.log("updated", docs);
+      res.json({
+        username: docs.username,
         description: req.body.description,
         duration: req.body.duration,
-        date: req.body.date || Date.now()
-      }
-    }
-  },
-  {new: true})
-  .then(docs=>{
-  console.log('updated',docs);
-    res.json({
-      username: docs.username,
-      description: req.body.description,
-      duration: req.body.duration,
-      date: (new Date(req.body.date || Date.now())).toDateString(),
-      _id: docs._id
+        date: new Date(req.body.date || Date.now()).toDateString(),
+        _id: docs._id,
+      });
     })
-  })
-  .catch(err=>{
-  console.log(err)
-    res.json(err)
-  });
-  
+    .catch((err) => {
+      console.log(err);
+      res.json(err);
+    });
+});
 
-
-
-//   UserModel.findById(req.params._id)
-//   .then((docs) => {
-//     if (docs == null) {
-//       res.json({error: "user not found"})
-//     }
-//     else {
-//     console.log("found", docs);
-//     docs.logs.push({
-//       description: req.body.description,
-//       duration: req.body.duration,
-//     });
-//     console.log('modified',docs.logs);
-
-//     docs
-//       .save()
-//       .then((docs) => {
-//         console.log("saved", docs);
-//         res.json();
-//       })
-//       .catch((err) => {
-//         console.log(err);
-//         res.send(err);
-//       });
-// }})
-//   .catch((err) => {
-//     console.log(err);
-//   });
+app.get("/api/users/:_id/logs", function (req, res) {
+  UserModel.findOne({ _id: req.params._id}, { __v: 0, "logs._id": 0 })
+    .then((docs) => {
+      let newDocs = {};
+      newDocs._id = docs._id;
+      newDocs.username = docs.username;
+      newDocs.count = docs.logs.length;
+      newDocs.logs = docs.logs;
+      // let newDocs = JSON.parse(JSON.stringify(docs));
+      console.log(docs);
+      for (let i = 0; i < docs.logs.length; i++) {
+        newDocs.logs[i].date = docs.logs[i].date.toDateString();
+      }
+      // newDocs.count = docs.logs.length;
+      res.json(newDocs);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.send(err);
+    });
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
