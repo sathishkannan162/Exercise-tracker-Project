@@ -73,11 +73,12 @@ app.post("/api/users/:_id/exercises", function (req, res) {
     .then((docs) => {
       console.log("updated", docs);
       res.json({
-        username: docs.username,
-        description: req.body.description,
-        duration: req.body.duration,
-        date: new Date(req.body.date || Date.now()).toDateString(),
         _id: docs._id,
+        username: docs.username,
+        date: new Date(req.body.date || Date.now()).toDateString(),
+        duration: Number(req.body.duration),
+        description: req.body.description
+        
       });
     })
     .catch((err) => {
