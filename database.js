@@ -1,4 +1,5 @@
 let mongoose = require('mongoose');
+require('dotenv').config();
 
 class Database {
     constructor() {
@@ -10,7 +11,8 @@ class Database {
             console.log("Database connection successful");
         })
         .catch(err=>{
-            console.log("Database connection error")
+            console.log("Database connection error");
+            console.log(err);
         });
     }
 }

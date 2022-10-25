@@ -1,2 +1,4 @@
 .env
 node_modules
+user_test.js
+initial_data.js
